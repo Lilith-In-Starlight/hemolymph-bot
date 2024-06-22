@@ -88,7 +88,8 @@ impl EventHandler for Handler {
     }
 }
 
-async fn bot() {
+#[tokio::main]
+async fn main() {
     let token = env::var("TOKEN").expect("Couldn't find a token in the env vars");
 
     let intent = GatewayIntents::GUILD_MESSAGES
@@ -103,14 +104,4 @@ async fn bot() {
     if let Err(why) = client.start().await {
         eprintln!("Client error: {why}");
     }
-    println!("a");
-}
-
-#[tokio::main]
-async fn main() {
-    tokio::spawn(async move {
-        bot().await;
-    })
-    .await
-    .unwrap();
 }

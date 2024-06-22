@@ -1,0 +1,30 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install latest rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Build
+        run: cargo build --all --release && strip target/release/hemolymph-bot && mv target/release/hemolymph-bot target/release/hemolymph-bot_amd64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-build
+          path: target/release/hemolymph-bot_amd64
