@@ -37,7 +37,7 @@ impl EventHandler for Handler {
             let mtch = mtch;
             let api_result = reqwest::get(format!(
                 "http://hemolymph.ampersandia.net/api/search?query=n:\"{}\"",
-                mtch.to_lowercase().replace(' ', "_")
+                mtch.to_lowercase()
             ))
             .await;
 
