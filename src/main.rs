@@ -36,7 +36,7 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::get(format!(
-                "http://hemolymph.ampersandia.net/api/card?id={}",
+                "http://hemolymph.ampersandia.net/api/search?query=n:\"{}\"",
                 mtch.to_lowercase().replace(' ', "_")
             ))
             .await;
@@ -44,17 +44,34 @@ impl EventHandler for Handler {
             println!("{}", mtch.to_lowercase().replace(' ', "_"));
 
             match api_result {
-                Ok(result) => match result.json::<Card>().await {
-                    Ok(query_result) => {
+                Ok(result) => match result.json::<QueryResult>().await {
+                    Ok(QueryResult::CardList {
+                        query_text: _,
+                        content,
+                    }) => {
+                        if let Some(card) = content.first() {
+                            if let Err(why) = msg
+                                .channel_id
+                                .say(
+                                    &ctx.http,
+                                    format!("http://hemolymph.ampersandia.net/card/{}", card.id),
+                                )
+                                .await
+                            {
+                                eprintln!("Error sending message: {why:?}");
+                            }
+                        } else if let Err(why) = msg
+                            .channel_id
+                            .say(&ctx.http, "Couldn't find card".to_string())
+                            .await
+                        {
+                            eprintln!("Error sending message: {why:?}");
+                        }
+                    }
+                    Ok(QueryResult::Error { message: _ }) => {
                         if let Err(why) = msg
                             .channel_id
-                            .say(
-                                &ctx.http,
-                                format!(
-                                    "http://hemolymph.ampersandia.net/card/{}",
-                                    query_result.id
-                                ),
-                            )
+                            .say(&ctx.http, "Couldn't find card".to_string())
                             .await
                         {
                             eprintln!("Error sending message: {why:?}");
