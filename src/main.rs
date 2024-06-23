@@ -31,6 +31,9 @@ enum QueryResult {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
+        if msg.author.bot {
+            return;
+        }
         for mtch in Regex::new(r"\{\{(.*)\}\}")
             .unwrap()
             .captures_iter(&msg.content)
