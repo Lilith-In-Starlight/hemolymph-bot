@@ -34,7 +34,7 @@ impl EventHandler for Handler {
         if msg.author.bot {
             return;
         }
-        for mtch in Regex::new(r"\{\{(.*)\}\}")
+        for mtch in Regex::new(r"\{\{(.*?)\}\}")
             .unwrap()
             .captures_iter(&msg.content)
             .filter_map(|x| x.get(1))
