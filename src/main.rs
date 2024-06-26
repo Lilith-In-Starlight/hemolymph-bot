@@ -188,7 +188,7 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
 
     let msg = CreateMessage::new()
         .embed(embed)
-        .content(format!("http://hemolymph.ampersandia.net/card/{}", card.id));
+        .content(format!("http://hemolymph.net/card/{}", card.id));
 
     match channel.send_message(http, msg).await {
         Ok(_) => (),
