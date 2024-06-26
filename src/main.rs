@@ -28,13 +28,14 @@ enum QueryResult {
     },
 }
 
+// .or_else(|_| reqwest::get(format!("http://hemolymph.net/api/search?query={}", mtch)))
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.author.bot {
             return;
         }
-        for mtch in Regex::new(r"\{\{(.*?)\}\}")
+        for mtch in Regex::new(r"\{\{([^!]*?)\}\}")
             .unwrap()
             .captures_iter(&msg.content)
             .filter_map(|x| x.get(1))
@@ -45,7 +46,58 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::get(format!(
-                "http://hemolymph.ampersandia.net/api/search?query=n:\"{}\"",
+                "http://hemolymph.net/api/search?query=n:\"{}\"",
+                mtch.to_lowercase()
+            ))
+            .and_then(|x| x.json::<QueryResult>())
+            .await;
+
+            match api_result {
+                Ok(QueryResult::CardList {
+                    query_text: _,
+                    content,
+                }) => {
+                    if let Some(card) = content.first() {
+                        message_for_card(&msg.channel_id, &ctx.http, card).await;
+                    } else {
+                        send_and_report(
+                            &ctx.http,
+                            "Couldn't find a matching card.",
+                            &msg.channel_id,
+                        )
+                        .await;
+                    }
+                }
+                Ok(QueryResult::Error { message }) => {
+                    send_and_report(
+                        &ctx.http,
+                        format!("Couldn't parse search: {message}"),
+                        &msg.channel_id,
+                    )
+                    .await;
+                }
+                Err(error) => {
+                    send_and_report(
+                        &ctx.http,
+                        format!("Couldn't perform search: {error}"),
+                        &msg.channel_id,
+                    )
+                    .await;
+                }
+            }
+        }
+        for mtch in Regex::new(r"\{\{!+?(.*?)\}\}")
+            .unwrap()
+            .captures_iter(&msg.content)
+            .filter_map(|x| x.get(1))
+        {
+            let mut mtch = mtch.as_str().trim().to_owned();
+            while mtch.contains("  ") {
+                mtch = mtch.replace("  ", " ");
+            }
+            let mtch = mtch;
+            let api_result = reqwest::get(format!(
+                "http://hemolymph.net/api/search?query={}",
                 mtch.to_lowercase()
             ))
             .and_then(|x| x.json::<QueryResult>())
