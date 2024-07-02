@@ -1,3 +1,5 @@
+#![warn(clippy::all)]
+#![warn(clippy::nursery)]
 use std::env;
 use std::fmt::Write;
 
@@ -162,6 +164,7 @@ async fn main() {
     }
 }
 
+#[allow(clippy::future_not_send)]
 async fn send_and_report(
     cache_http: impl CacheHttp,
     message: impl Into<String>,
@@ -175,7 +178,8 @@ async fn send_and_report(
 
 async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card) {
     let footer = CreateEmbedFooter::new(
-        get_card_footer_text(card).unwrap_or("Failed to generate cost-typeline".to_owned()),
+        get_card_footer_text(card)
+            .unwrap_or_else(|_| "Failed to generate cost-typeline".to_owned()),
     );
     let embed = CreateEmbed::new()
         .title(card.name.clone())
