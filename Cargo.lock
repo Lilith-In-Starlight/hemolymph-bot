@@ -556,15 +556,14 @@ checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
 name = "hemoglobin"
-version = "0.5.4"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48d9b693b43743e7eb770854fd4e6cdccfcca5c991b0057a21e825fff459a1c2"
+checksum = "e411acab27f7fc3fe14227d3fc574aaa15bea25daaf83c812118a9769ca5a24b"
 dependencies = [
  "rand",
  "regex",
  "rust-fuzzy-search",
  "serde",
- "serde_json",
 ]
 
 [[package]]

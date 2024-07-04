@@ -1,9 +1,12 @@
-#![warn(clippy::all)]
+#![warn(clippy::pedantic)]
 #![warn(clippy::nursery)]
 use std::env;
 use std::fmt::Write;
 
-use hemoglobin::cards::Card;
+use hemoglobin::cards::{
+    rich_text::{RichElement, RichString},
+    Card,
+};
 use regex::Regex;
 use serde::Deserialize;
 use serenity::{
@@ -32,6 +35,7 @@ enum QueryResult {
 
 // .or_else(|_| reqwest::get(format!("http://hemolymph.net/api/search?query={}", mtch)))
 #[async_trait]
+#[allow(clippy::too_many_lines)]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.author.bot {
@@ -51,7 +55,7 @@ impl EventHandler for Handler {
                 "http://hemolymph.net/api/search?query=n:\"{}\"",
                 mtch.to_lowercase()
             ))
-            .and_then(|x| x.json::<QueryResult>())
+            .and_then(reqwest::Response::json)
             .await;
 
             match api_result {
@@ -102,7 +106,7 @@ impl EventHandler for Handler {
                 "http://hemolymph.net/api/search?query={}",
                 mtch.to_lowercase()
             ))
-            .and_then(|x| x.json::<QueryResult>())
+            .and_then(reqwest::Response::json)
             .await;
 
             match api_result {
@@ -201,7 +205,27 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
 }
 
 fn get_card_embed_text(card: &Card) -> String {
-    card.description.clone()
+    render_rich_string(&card.description)
+}
+
+fn render_rich_string(str: &RichString) -> String {
+    str.iter().fold(String::new(), |acc, x| match x {
+        RichElement::String(x) => format!("{acc}{x}"),
+        RichElement::CardId {
+            display,
+            identity: _,
+        }
+        | RichElement::SpecificCard { display, id: _ }
+        | RichElement::CardSearch { display, search: _ } => format!("{acc}{display}"),
+        RichElement::Saga(x) => {
+            let thing = x.iter().enumerate().fold(String::new(), |acc, (idx, x)| {
+                format!("{acc}\n{}. {}", idx + 1, render_rich_string(x))
+            });
+
+            format!("{thing}\n")
+        }
+        RichElement::LineBreak => format!("{acc}\n"),
+    })
 }
 
 fn get_card_footer_text(card: &Card) -> Result<String, core::fmt::Error> {
