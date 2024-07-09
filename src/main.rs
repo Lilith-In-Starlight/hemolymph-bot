@@ -33,7 +33,7 @@ enum QueryResult {
     },
 }
 
-// .or_else(|_| reqwest::get(format!("http://hemolymph.net/api/search?query={}", mtch)))
+// .or_else(|_| reqwest::get(format!("https://hemolymph.net/api/search?query={}", mtch)))
 #[async_trait]
 #[allow(clippy::too_many_lines)]
 impl EventHandler for Handler {
@@ -52,7 +52,7 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::get(format!(
-                "http://hemolymph.net/api/search?query=n:\"{}\"",
+                "https://hemolymph.net/api/search?query=n:\"{}\"",
                 mtch.to_lowercase()
             ))
             .and_then(reqwest::Response::json)
@@ -103,7 +103,7 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::get(format!(
-                "http://hemolymph.net/api/search?query={}",
+                "https://hemolymph.net/api/search?query={}",
                 mtch.to_lowercase()
             ))
             .and_then(reqwest::Response::json)
@@ -196,7 +196,7 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
 
     let msg = CreateMessage::new()
         .embed(embed)
-        .content(format!("http://hemolymph.net/card/{}", card.id));
+        .content(format!("https://hemolymph.net/card/{}", card.id));
 
     match channel.send_message(http, msg).await {
         Ok(_) => (),
