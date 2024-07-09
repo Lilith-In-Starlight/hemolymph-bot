@@ -189,7 +189,7 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
         .title(card.name.clone())
         .image(format!(
             "https://file.garden/ZJSEzoaUL3bz8vYK/bloodlesscards/{}.png",
-            card.get_image()
+            card.get_image_path(0)
         ))
         .footer(footer)
         .description(get_card_embed_text(card));

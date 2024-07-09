@@ -556,9 +556,9 @@ checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
 name = "hemoglobin"
-version = "0.6.3"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e411acab27f7fc3fe14227d3fc574aaa15bea25daaf83c812118a9769ca5a24b"
+checksum = "6507a7fc127facc73be1dba9ebe81a606495571cda098f7475c5bb541e863c93"
 dependencies = [
  "rand",
  "regex",
