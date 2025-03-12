@@ -187,7 +187,7 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
     );
     let embed = CreateEmbed::new()
         .title(card.name.clone())
-        .image(format!(
+        .thumbnail(format!(
             "https://file.garden/ZJSEzoaUL3bz8vYK/bloodlesscards/{}.png",
             card.get_image_path(0)
         ))
