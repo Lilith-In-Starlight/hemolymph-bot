@@ -205,7 +205,22 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
 }
 
 fn get_card_embed_text(card: &Card) -> String {
-    render_rich_string(&card.description)
+    let mut out = String::new();
+    out += &render_rich_string(&card.description);
+    if !card.flavor_text.is_empty() {
+        out += "\n\n";
+        out += "-# ";
+        let asterisk_it = !card.flavor_text.contains(['*']);
+        if asterisk_it {
+            out += "*";
+        }
+        out += &card.flavor_text;
+        if asterisk_it {
+            out += "*";
+        }
+    }
+
+    out
 }
 
 fn render_rich_string(str: &RichString) -> String {
