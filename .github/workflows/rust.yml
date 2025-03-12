@@ -24,7 +24,7 @@ jobs:
         run: cargo build --all --release && strip target/release/hemolymph-bot && mv target/release/hemolymph-bot target/release/hemolymph-bot_amd64
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: target/release/hemolymph-bot_amd64
