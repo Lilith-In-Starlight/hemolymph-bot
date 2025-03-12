@@ -207,16 +207,18 @@ async fn message_for_card(channel: &ChannelId, http: impl CacheHttp, card: &Card
 fn get_card_embed_text(card: &Card) -> String {
     let mut out = String::new();
     out += &render_rich_string(&card.description);
+    let asterisk_it = !card.flavor_text.contains('*');
     if !card.flavor_text.is_empty() {
-        out += "\n\n";
-        out += "-# ";
-        let asterisk_it = !card.flavor_text.contains(['*']);
-        if asterisk_it {
-            out += "*";
-        }
-        out += &card.flavor_text;
-        if asterisk_it {
-            out += "*";
+        for line in card.flavor_text.lines().filter(|x| !x.is_empty()) {
+            out += "\n\n";
+            out += "-# ";
+            if asterisk_it {
+                out += "*";
+            }
+            out += line;
+            if asterisk_it {
+                out += "*";
+            }
         }
     }
 
