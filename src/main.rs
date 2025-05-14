@@ -8,32 +8,16 @@ use hemoglobin::cards::{
     Card,
 };
 use regex::Regex;
-use serde::Deserialize;
 use serenity::{
     all::{
         CacheHttp, ChannelId, Context, CreateEmbed, CreateEmbedFooter, CreateMessage, EventHandler,
         GatewayIntents, Message, Ready,
     },
-    async_trait,
-    futures::TryFutureExt,
-    Client,
+    async_trait, Client,
 };
 
 struct Handler;
 
-#[derive(Deserialize, PartialEq)]
-#[serde(tag = "type")]
-enum QueryResult {
-    CardList {
-        query_text: String,
-        content: Vec<Card>,
-    },
-    Error {
-        message: String,
-    },
-}
-
-// .or_else(|_| reqwest::get(format!("https://hemolymph.net/api/search?query={}", mtch)))
 #[async_trait]
 #[allow(clippy::too_many_lines)]
 impl EventHandler for Handler {
@@ -51,41 +35,40 @@ impl EventHandler for Handler {
                 mtch = mtch.replace("  ", " ");
             }
             let mtch = mtch;
-            let api_result = reqwest::get(format!(
-                "https://hemolymph.net/api/search?query=n:\"{}\"",
-                mtch.to_lowercase()
-            ))
-            .and_then(reqwest::Response::json)
-            .await;
+            let api_result = reqwest::Client::new()
+                .post("https://hemolymph.net/api/search")
+                .body(format!("query=n:\"{}\"", mtch.to_lowercase()))
+                .send()
+                .await;
 
+            println!("{api_result:#?}");
             match api_result {
-                Ok(QueryResult::CardList {
-                    query_text: _,
-                    content,
-                }) => {
-                    if let Some(card) = content.first() {
+                Ok(response) => match response.json().await {
+                    Ok(cards) => {
+                        let cards: Vec<Card> = cards;
+                        let Some(card) = cards.first() else {
+                            send_and_report(&ctx.http, "No matches.".to_string(), &msg.channel_id)
+                                .await;
+                            return;
+                        };
+
                         message_for_card(&msg.channel_id, &ctx.http, card).await;
-                    } else {
+                    }
+                    Err(error) => {
+                        println!("error on json 1");
                         send_and_report(
                             &ctx.http,
-                            "Couldn't find a matching card.",
+                            format!("Invalid response from Hemolymph: {error}"),
                             &msg.channel_id,
                         )
                         .await;
                     }
-                }
-                Ok(QueryResult::Error { message }) => {
-                    send_and_report(
-                        &ctx.http,
-                        format!("Couldn't parse search: {message}"),
-                        &msg.channel_id,
-                    )
-                    .await;
-                }
+                },
                 Err(error) => {
+                    println!("error on response 1");
                     send_and_report(
                         &ctx.http,
-                        format!("Couldn't perform search: {error}"),
+                        format!("Search failed: {error}"),
                         &msg.channel_id,
                     )
                     .await;
@@ -102,41 +85,39 @@ impl EventHandler for Handler {
                 mtch = mtch.replace("  ", " ");
             }
             let mtch = mtch;
-            let api_result = reqwest::get(format!(
-                "https://hemolymph.net/api/search?query={}",
-                mtch.to_lowercase()
-            ))
-            .and_then(reqwest::Response::json)
-            .await;
+            let api_result = reqwest::Client::new()
+                .post("https://hemolymph.net/api/search")
+                .body(format!("query={}", mtch.to_lowercase()))
+                .send()
+                .await;
 
             match api_result {
-                Ok(QueryResult::CardList {
-                    query_text: _,
-                    content,
-                }) => {
-                    if let Some(card) = content.first() {
+                Ok(response) => match response.json().await {
+                    Ok(cards) => {
+                        let cards: Vec<Card> = cards;
+                        let Some(card) = cards.first() else {
+                            send_and_report(&ctx.http, "No matches.".to_string(), &msg.channel_id)
+                                .await;
+                            return;
+                        };
+
                         message_for_card(&msg.channel_id, &ctx.http, card).await;
-                    } else {
+                    }
+                    Err(error) => {
+                        println!("error on json 2");
                         send_and_report(
                             &ctx.http,
-                            "Couldn't find a matching card.",
+                            format!("Invalid response from Hemolymph: {error}"),
                             &msg.channel_id,
                         )
                         .await;
                     }
-                }
-                Ok(QueryResult::Error { message }) => {
-                    send_and_report(
-                        &ctx.http,
-                        format!("Couldn't parse search: {message}"),
-                        &msg.channel_id,
-                    )
-                    .await;
-                }
+                },
                 Err(error) => {
+                    println!("error on response 2");
                     send_and_report(
                         &ctx.http,
-                        format!("Couldn't perform search: {error}"),
+                        format!("Search failed: {error}"),
                         &msg.channel_id,
                     )
                     .await;
