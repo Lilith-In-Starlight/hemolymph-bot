@@ -19,6 +19,10 @@ jobs:
           toolchain: stable
           default: true
           override: true
+          
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "build"
 
       - name: Build
         run: cargo build --all --release && strip target/release/hemolymph-bot && mv target/release/hemolymph-bot target/release/hemolymph-bot_amd64

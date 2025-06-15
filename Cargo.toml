@@ -5,10 +5,10 @@ edition = "2021"
 
 [dependencies]
 dioxus = { version = "0.6.3", features = ["fullstack"], default-features = false }
-hemoglobin = "0.8.3"
+hemoglobin = "0.9"
 regex = "1.10.5"
 reqwest = { version = "0.12.5", features = ["json"] }
 serde = "1.0.203"
 serde_json = "1.0.117"
-serenity = "0.12.2"
+serenity = "0.12.4"
 tokio = { version = "1.38.0", features = ["rt-multi-thread"] }
