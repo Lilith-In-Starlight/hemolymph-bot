@@ -32,3 +32,22 @@ jobs:
         with:
           name: linux-build
           path: target/release/hemolymph-bot_amd64
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Stop systemctl service
+        run: |
+          ssh -o StrictHostKeyChecking=no root@hemolymph.net "sudo systemctl stop hemobot"
+          
+      - name: Push executable
+        run: |
+          rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          target/release/hemolymph-bot_amd64 root@hemolymph.net:/home/hemobot
+          
+      - name: Stop systemctl service
+        run: |
+          ssh -o StrictHostKeyChecking=no root@hemolymph.net "sudo systemctl start hemobot"
