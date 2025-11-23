@@ -36,8 +36,10 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::Client::new()
-                .get("https://hemolymph.net/api/search")
-                .body(format!("query=n:\"{}\"", mtch.to_lowercase()))
+                .get(format!(
+                    "https://hemolymph.net/search?query=n:\"{}\"",
+                    mtch.to_lowercase()
+                ))
                 .send()
                 .await;
 
@@ -86,8 +88,10 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::Client::new()
-                .get("https://hemolymph.net/api/search")
-                .body(format!("query={}", mtch.to_lowercase()))
+                .get(format!(
+                    "https://hemolymph.net/search?query={}",
+                    mtch.to_lowercase()
+                ))
                 .send()
                 .await;
 
