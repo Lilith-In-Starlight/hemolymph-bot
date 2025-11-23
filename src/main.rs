@@ -36,7 +36,7 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::Client::new()
-                .post("https://hemolymph.net/api/search")
+                .get("https://hemolymph.net/api/search")
                 .body(format!("query=n:\"{}\"", mtch.to_lowercase()))
                 .send()
                 .await;
@@ -86,7 +86,7 @@ impl EventHandler for Handler {
             }
             let mtch = mtch;
             let api_result = reqwest::Client::new()
-                .post("https://hemolymph.net/api/search")
+                .get("https://hemolymph.net/api/search")
                 .body(format!("query={}", mtch.to_lowercase()))
                 .send()
                 .await;
